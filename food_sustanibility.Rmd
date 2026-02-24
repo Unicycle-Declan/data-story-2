@@ -6,30 +6,47 @@ output: ioslides_presentation
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
-## R Markdown
-
-This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
-
-## Slide with Bullets
-
-- Bullet 1
-- Bullet 2
-- Bullet 3
-
-## Slide with R Output
-
-```{r cars, echo = TRUE}
-summary(cars)
+```{r}
+# load packeges ----
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(leaflet)
+library(patchwork)
+library(tidyr)
+library(purrr)
 ```
 
-## Slide with Plot
+```{r}
+url <- 'https://ourworldindata.org/explorers/global-food.csv?v=1&csvType=full&useColumnShortNames=true&Food=Maize+%28corn%29&Metric=Production&Per+Capita=false&Per+capita=false?'
+`%not_in%` <- negate(`%in%`)
+food_producers <- read_csv(url) %>%
+  filter(entity %not_in% c("World",
+                           "North America",
+                           "South America",
+                           "Africa",
+                           "Asia",
+                           "Ociana",
+                           "Europe"),
+         !grepl("\\(FAO\\)$", entity)) %>%
+  group_by(entity)
+#View(food_producers)
+food_producers %>%
+  pull(entity) %>%
+  unique()
 
-```{r pressure}
-plot(pressure)
+fp_2023 <- food_producers %>%
+  filter(year == 2023)
+
+  ggplot(food_producers,
+       aes(x = entity,
+           y = maize__00000056__production__005510__tonnes)
+       ) +
+  geom_col()
+
+
 ```
 
